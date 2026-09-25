@@ -35,13 +35,7 @@ Pose = mp_holistic.PoseLandmark
 
 LANDMARK_CONFIG = {
     "pose": {
-        "total": 33,
         "indices": [
-            #Pose.NOSE.value,
-            #Pose.LEFT_EYE.value,
-            #Pose.RIGHT_EYE.value,
-            #Pose.MOUTH_LEFT.value,
-            #Pose.MOUTH_RIGHT.value,
             Pose.LEFT_SHOULDER.value,
             Pose.RIGHT_SHOULDER.value,
             Pose.LEFT_ELBOW.value,
@@ -49,29 +43,29 @@ LANDMARK_CONFIG = {
             Pose.LEFT_WRIST.value,
             Pose.RIGHT_WRIST.value,
         ],
-        "include_visibility": True,
+        "include_visibility": True
     },
+
     "left_hand": {
-        "total": 21,
         "indices": list(range(21)),
-        "include_visibility": False,
+        "include_visibility": False
     },
+
     "right_hand": {
-        "total": 21,
         "indices": list(range(21)),
-        "include_visibility": False,
+        "include_visibility": False
     },
+
     "face": {
-        "total": 468,
         "indices": [
-            1,            # Ponta do nariz (referência central)
-            61, 291,      # Cantos da boca (esquerdo e direito) - útil para detectar sorrisos
-            0, 17,        # Lábios externos (superior e inferior) - útil para abertura da boca
-            13, 14,       # Lábios internos (superior e inferior) - útil para abertura da boca
-            159, 145,     # Olho esquerdo (pálpebra superior e inferior) - útil para piscar/olho fechado
-            386, 374      # Olho direito (pálpebra superior e inferior) - útil para piscar/olho fechado,  # TODO: preencher com índices de olhos/boca se precisar
+            1,          # nariz / referência
+            61, 291,    # cantos da boca
+            0, 17,      # lábios externos
+            13, 14,     # lábios internos
+            159, 145,   # olho
+            386, 374    # outro olho
         ],
-        "include_visibility": False,
+        "include_visibility": False
     },
 }
 
