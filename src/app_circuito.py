@@ -23,125 +23,13 @@ MIN_CONFIDENCE = 0.60
 mp_holistic = mp.solutions.holistic
 mp_drawing = mp.solutions.drawing_utils
 
-Pose = mp_holistic.PoseLandmark
-
-
-# ============================================================
-# CONFIGURAÇÃO DOS LANDMARKS
-#
-# IMPORTANTE:
-# Esta configuração deve ser EXATAMENTE igual à utilizada
-# durante a coleta de dados.
-# ============================================================
-
-LANDMARK_CONFIG = {
-    "pose": {
-        "indices": [
-            Pose.LEFT_SHOULDER.value,
-            Pose.RIGHT_SHOULDER.value,
-            Pose.LEFT_ELBOW.value,
-            Pose.RIGHT_ELBOW.value,
-            Pose.LEFT_WRIST.value,
-            Pose.RIGHT_WRIST.value,
-        ],
-        "include_visibility": True
-    },
-
-    "left_hand": {
-        "indices": list(range(21)),
-        "include_visibility": False
-    },
-
-    "right_hand": {
-        "indices": list(range(21)),
-        "include_visibility": False
-    },
-
-    "face": {
-        "indices": [
-            1,          # nariz / referência
-            61, 291,    # cantos da boca
-            0, 17,      # lábios externos
-            13, 14,     # lábios internos
-            159, 145,   # olho
-            386, 374    # outro olho
-        ],
-        "include_visibility": False
-    },
-}
-
-
-RESULT_ATTR = {
-    "pose": "pose_landmarks",
-    "face": "face_landmarks",
-    "left_hand": "left_hand_landmarks",
-    "right_hand": "right_hand_landmarks",
-}
-
-
-# ============================================================
-# NOMES DAS COLUNAS DE FEATURES
-#
-# Precisa gerar os nomes na MESMA ordem em que extract_landmarks()
-# monta a linha, e essa ordem precisa bater com a usada em
-# coleta_dados.py / processar_dados.py — é isso que garante que
-# aplicar_normalizacao() saiba, posição a posição, qual valor é
-# x/y/z/visibility de qual landmark.
-# ============================================================
-
-def build_feature_column_names(config):
-    columns = []
-    for group_name, group_cfg in config.items():
-        for idx in group_cfg["indices"]:
-            columns.extend([
-                f"{group_name}_{idx}_x",
-                f"{group_name}_{idx}_y",
-                f"{group_name}_{idx}_z",
-            ])
-            if group_cfg["include_visibility"]:
-                columns.append(f"{group_name}_{idx}_v")
-    return columns
-
+from landmarks import (
+    LANDMARK_CONFIG, RESULT_ATTR, build_feature_column_names,
+    build_column_names, extract_group, extract_landmarks,
+)
 
 FEATURE_COLUMNS = build_feature_column_names(LANDMARK_CONFIG)
 
-
-# ============================================================
-# EXTRAÇÃO DOS LANDMARKS
-# ============================================================
-
-def extract_group(landmark_list, group_cfg):
-    values = []
-
-    n_coords = 4 if group_cfg["include_visibility"] else 3
-
-    for idx in group_cfg["indices"]:
-        if landmark_list is not None:
-            lm = landmark_list.landmark[idx]
-            point = [lm.x, lm.y, lm.z]
-
-            if group_cfg["include_visibility"]:
-                point.append(lm.visibility)
-
-            values.extend(point)
-        else:
-            values.extend([0.0] * n_coords)
-
-    return values
-
-
-def extract_landmarks(results):
-    row = []
-    for group_name, group_cfg in LANDMARK_CONFIG.items():
-        landmark_list = getattr(results, RESULT_ATTR[group_name])
-        row.extend(extract_group(landmark_list, group_cfg))
-
-    return row
-
-
-# ============================================================
-# NORMALIZAÇÃO
-# ============================================================
 
 def normalizar_landmarks(features, results):
     """
