@@ -27,6 +27,14 @@ import time
 import cv2
 import mediapipe as mp
 
+FIGURINHAS = [
+    "neutro",
+    "absolute_cinema", "calabreso", "coelho_relogio", "crianca_chocada", 
+    "deboche", "dedo_apontando", "edward_nojo", "emoji_sumindo", "emoji_vaia", 
+    "gatinho_hang_loose", "gatinho_legal", "italo_rossi", "macaco_reflexivo", 
+    "nao_grita", "pensativo", "sonic", "beyonce_tirulipa"
+]
+
 # =============================================================================
 # 1. CONFIGURAÇÃO DE LANDMARKS (ponto único de escalabilidade)
 # =============================================================================
@@ -92,10 +100,10 @@ def save_row(row: list, participant_id: str, label: str, path: str = DATASET_PAT
 # 5. LOOP PRINCIPAL DE CAPTURA
 # =============================================================================
 def main():
-    pose_label = input(
-        f"Nome da pose a ser gravada (ex: macaco_zen, ou '{LABEL_NEUTRO}'): "
-    ).strip()
     participant_id = input("ID/nome do participante (ex: Lules01): ").strip()
+
+    figurinha_index = 0
+    pose_label = FIGURINHAS[figurinha_index]
 
     is_neutro = pose_label.lower() == LABEL_NEUTRO
 
@@ -189,10 +197,15 @@ def main():
             # --- Textos na tela ----------------------------------------------
             status_texto = "GRAVANDO" if recording else "PARADO"
             status_cor = (0, 0, 255) if recording else (200, 200, 200)
-            cv2.putText(frame, f"[{status_texto}] pose: {pose_label}", (10, 25),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_cor, 2)
+
+            cv2.putText(frame, f"[{status_texto}] Figurinha: {pose_label}",
+                        (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_cor, 2)
+
+            cv2.putText(frame, f"{figurinha_index + 1}/{len(FIGURINHAS)}",
+                        (10, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 2)
+
             cv2.putText(frame, f"frames: {frame_count}/{FRAMES_ALVO_POR_POSE}",
-                        (10, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (200, 200, 200), 2)
+                        (10, 85), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (200, 200, 200), 2)
 
             if recording:
                 # Etapa 5: lembrete visual de que é a classe neutro,
@@ -200,20 +213,30 @@ def main():
                 if is_neutro:
                     cv2.putText(frame, "Classe NEUTRO: fique parado ou se "
                                         "mova aleatoriamente, sem pose fixa",
-                                (10, 85), cv2.FONT_HERSHEY_SIMPLEX, 0.6,
+                                (10, 115), cv2.FONT_HERSHEY_SIMPLEX, 0.6,
                                 (0, 165, 255), 2)
                 else:
-                    cv2.putText(frame, aviso_atual, (10, 85),
+                    cv2.putText(frame, aviso_atual, (10, 115),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 165, 255), 2)
 
-            cv2.putText(frame, "[s] iniciar/pausar  [q] sair", (10, frame.shape[0] - 15),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (150, 150, 150), 1)
+            cv2.putText(frame, "[n] proxima  [p] anterior  [s] iniciar/pausar  [q] sair",
+                        (10, frame.shape[0] - 50), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.55, (150, 200, 200), 1)
 
             cv2.imshow("Coleta de Dados", frame)
 
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q"):
                 break
+            elif key in (ord("n"), ord("p")):
+                if not recording and not is_counting_down:
+                    if key == ord("n"):
+                        figurinha_index = (figurinha_index + 1) % len(FIGURINHAS)
+                    else:
+                        figurinha_index = (figurinha_index - 1) % len(FIGURINHAS)
+                    pose_label = FIGURINHAS[figurinha_index]
+                    is_neutro = pose_label.lower() == LABEL_NEUTRO
+                    frame_count = 0
             elif key == ord("s"):
                 if recording:
                     # Se está a gravar, pausa imediatamente
