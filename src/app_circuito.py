@@ -74,8 +74,10 @@ def main():
         print("Não foi possível abrir a webcam.")
         return
 
-    with mp_holistic.Holistic(min_detection_confidence=0.5,
-                              min_tracking_confidence=0.5) as holistic:
+    with mp_holistic.Holistic(
+        model_complexity=1,
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5) as holistic:
         while cap.isOpened():
             success, frame = cap.read()
             if not success:

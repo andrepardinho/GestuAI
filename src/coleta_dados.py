@@ -102,7 +102,7 @@ def main():
     cap = cv2.VideoCapture(0)
 
     with mp_holistic.Holistic(
-        model_complexity=2,
+        model_complexity=1,
         min_detection_confidence=0.7,
         min_tracking_confidence=0.7,
     ) as holistic:

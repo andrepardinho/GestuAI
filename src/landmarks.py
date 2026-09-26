@@ -36,27 +36,30 @@ LANDMARK_CONFIG = {
     "face": {
         "total": 468,
         "indices": [
-            # Nariz
-            1, 2, 4, 5, 6, 19,
+            # Nariz / referência para normalização
+            1,
 
             # Olho direito
-            33, 133, 159, 145, 163, 7,
+            33, 133,      # cantos
+            159, 145,     # pálpebras
 
             # Olho esquerdo
-            263, 362, 386, 374, 390, 249,
+            263, 362,     # cantos
+            386, 374,     # pálpebras
 
             # Sobrancelha direita
-            46, 53, 52, 65, 55, 70, 63, 105,
+            46,55,105,
 
             # Sobrancelha esquerda
-            276, 283, 282, 295, 285, 300, 293, 334,
+            276,285, 334,
 
             # Boca
-            61, 291,
-            0, 17,
-            13, 14,
-            78, 308,
-            87, 317
+            61, 291,      # cantos
+            0, 17,        # parte externa
+            13, 14,       # parte interna
+            78, 308,      # região lateral
+            87, 317,      # região inferior
+
         ],
         "include_visibility": False,
     },
