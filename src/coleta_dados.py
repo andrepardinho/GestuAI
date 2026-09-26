@@ -40,7 +40,7 @@ DATASET_PATH = "data/dataset_raw.csv"
 
 # --- Etapa 3: controle de volume de captura -------------------------------
 #Quantos frames grava por clique do botão "s"
-FRAMES_ALVO_POR_POSE = 200
+FRAMES_ALVO_POR_POSE = 125
 # Quantos frames gravar por segundo no CSV (ex: 10 FPS)
 FPS_GRAVACAO = 10 
 INTERVALO_GRAVACAO = 1.0 / FPS_GRAVACAO
