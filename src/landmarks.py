@@ -36,12 +36,27 @@ LANDMARK_CONFIG = {
     "face": {
         "total": 468,
         "indices": [
-            1,            # Ponta do nariz (referência central)
-            61, 291,      # Cantos da boca (esquerdo e direito) - útil para detectar sorrisos
-            0, 17,        # Lábios externos (superior e inferior) - útil para abertura da boca
-            13, 14,       # Lábios internos (superior e inferior) - útil para abertura da boca
-            159, 145,     # Olho esquerdo (pálpebra superior e inferior) - útil para piscar/olho fechado
-            386, 374      # Olho direito (pálpebra superior e inferior) - útil para piscar/olho fechado,  # TODO: preencher com índices de olhos/boca se precisar
+            # Nariz
+            1, 2, 4, 5, 6, 19,
+
+            # Olho direito
+            33, 133, 159, 145, 163, 7,
+
+            # Olho esquerdo
+            263, 362, 386, 374, 390, 249,
+
+            # Sobrancelha direita
+            46, 53, 52, 65, 55, 70, 63, 105,
+
+            # Sobrancelha esquerda
+            276, 283, 282, 295, 285, 300, 293, 334,
+
+            # Boca
+            61, 291,
+            0, 17,
+            13, 14,
+            78, 308,
+            87, 317
         ],
         "include_visibility": False,
     },
