@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 mediapipe==0.10.21
 opencv-python
 pandas
 scikit-learn
 joblib
+=======
+mediapipe==0.10.21
+opencv-python
+pandas
+scikit-learn
+joblib
+>>>>>>> d9038465c9c576ff729f49efeaa441bd4c60946d
