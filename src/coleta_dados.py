@@ -25,6 +25,7 @@ import csv
 import random
 import time
 import cv2
+import winsound
 import mediapipe as mp
 
 FIGURINHAS = [
@@ -139,6 +140,11 @@ def main():
                 and results.face_landmarks is not None
             )
 
+            # --- Alerta Sonoro de Erro/Perda de Rastreamento ---
+            # Se estiver gravando mas o rosto ou pose sumirem, emite um bip curto e grave (440Hz)
+            if recording and not referencias_validas:
+                winsound.Beep(440, 100)
+
             mp.solutions.drawing_utils.draw_landmarks(
                 frame, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS
             )
@@ -182,6 +188,8 @@ def main():
 
                     if frame_count >= FRAMES_ALVO_POR_POSE:
                         recording = False
+                        # Emite um bip longo e agudo (1500Hz) indicando SUCESSO e fim da captura
+                        winsound.Beep(1500, 600)
                         print(
                             f"[OK] {frame_count} frames gravados para '{pose_label}'. "
                             f"Gravação parada automaticamente. Pressione 's' para "
