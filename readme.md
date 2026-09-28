@@ -57,6 +57,38 @@ Siga os avisos na tela para variar a posição. Pressione `s` para iniciar a con
 3. Treinamento: Execute `python treinamento.py` para ensinar a Inteligência Artificial a reconhecer os dados que você gravou e gerar um novo modelo.
 
 ## 👩‍💻 Desenvolvedores
-| | | |
-| :---: | :---: | :---: |
-| [<img loading="lazy" src="https://avatars.githubusercontent.com/u/167363904?v=4" width=115><br><sub>Cauan Valadão</sub>](https://github.com/CauanValadao) | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/153616098?v=4" width=115><br><sub>André Pardinho</sub>](https://github.com/andrepardinho) | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/179859232?s=400&u=6542874b1e58561792446632dfd12758eb721c15&v=4" width=115><br><sub>Victória Santana</sub>](https://github.com/svictoriasantana) | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/159674836?v=4" width=115><br><sub>Guilherme Bongestab</sub>](https://github.com/guibongestab) |
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <a href="https://github.com/CauanValadao">
+        <img src="https://avatars.githubusercontent.com/u/167363904?v=4" width="115px;" alt="Foto de Cauan"/><br />
+        <sub><b>Cauan Valadão</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/andrepardinho">
+        <img src="https://avatars.githubusercontent.com/u/153616098?v=4" width="115px;" alt="Foto de André"/><br />
+        <sub><b>André Pardinho</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/svictoriasantana">
+        <img src="https://avatars.githubusercontent.com/u/179859232?v=4" width="115px;" alt="Foto de Victória"/><br />
+        <sub><b>Victória Santana</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/guibongestab">
+        <img src="https://avatars.githubusercontent.com/u/159674836?v=4" width="115px;" alt="Foto de Guilherme"/><br />
+        <sub><b>Guilherme Bongestab</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Thaina-0">
+        <img src="https://avatars.githubusercontent.com/u/257646291?v=4" width="115px;" alt="Foto de Thainá"/><br />
+        <sub><b>Thainá Guimarães</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
