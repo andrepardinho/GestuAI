@@ -1,1 +1,4 @@
 models/modelo_poses.pkl filter=lfs diff=lfs merge=lfs -text
+data/dataset_norm.csv filter=lfs diff=lfs merge=lfs -text
+data/dataset_raw.csv filter=lfs diff=lfs merge=lfs -text
+data/dataset_raw_backup.csv filter=lfs diff=lfs merge=lfs -text
