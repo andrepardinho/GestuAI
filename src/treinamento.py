@@ -46,7 +46,8 @@ def dividir_por_participante(X, y, participants, participante_teste):
 def treinar_modelo(X_train, y_train):
     modelo = RandomForestClassifier(
         n_estimators=200,
-        random_state=42
+        random_state=42,
+        n_jobs=-1
     )
 
     modelo.fit(X_train, y_train)
@@ -88,7 +89,7 @@ def main():
     print("\nParticipantes:")
     print(participants.value_counts())
 
-    participante_teste = "enzo"
+    participante_teste = "Guilherme0608"
 
     X_train, X_test, y_train, y_test = dividir_por_participante(
         X,

@@ -26,6 +26,8 @@ def processar(raw_path: str = RAW_PATH,
 
     print(f"Linhas carregadas: {len(df)}")
 
+    #df = df[df["label"] != "deboche"] descomente para apagar deboche
+
     df_normalizado = aplicar_normalizacao_dataframe(df)
 
     diretorio = os.path.dirname(norm_path)
