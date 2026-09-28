@@ -23,7 +23,7 @@ Recomenda-se o uso de um ambiente virtual (venv) para evitar conflitos de depend
 
 ```bash
 # 1. Clone o repositório
-git clone [https://github.com/andrepardinho/GestuAI.git](https://github.com/andrepardinho/GestuAI.git)
+git clone https://github.com/andrepardinho/GestuAI
 cd GestuAI
 
 # 2. Crie o ambiente virtual
@@ -57,4 +57,6 @@ Siga os avisos na tela para variar a posição. Pressione `s` para iniciar a con
 3. Treinamento: Execute `python treinamento.py` para ensinar a Inteligência Artificial a reconhecer os dados que você gravou e gerar um novo modelo.
 
 ## 👩‍💻 Desenvolvedores
-[https://contribs.rocks/image?repo=andrepardinho/GestuAI](https://contribs.rocks/image?repo=andrepardinho/GestuAI)
+| | | |
+| :---: | :---: | :---: |
+| [<img loading="lazy" src="https://avatars.githubusercontent.com/u/167363904?v=4" width=115><br><sub>Cauan Valadão</sub>](https://github.com/CauanValadao) | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/153616098?v=4" width=115><br><sub>André Pardinho</sub>](https://github.com/andrepardinho) | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/179859232?s=400&u=6542874b1e58561792446632dfd12758eb721c15&v=4" width=115><br><sub>Victória Santana</sub>](https://github.com/svictoriasantana) | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/159674836?v=4" width=115><br><sub>Guilherme Bongestab</sub>](https://github.com/guibongestab) |
