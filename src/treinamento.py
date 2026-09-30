@@ -30,8 +30,9 @@ def separar_dados(df):
     return X, y, participants
 
 
-def dividir_por_participante(X, y, participants, participante_teste):
-    test_mask = participants == participante_teste
+def dividir_por_participante(X, y, participants, participantes_teste):
+    # Utiliza .isin() para filtrar a lista de múltiplos participantes
+    test_mask = participants.isin(participantes_teste)
     train_mask = ~test_mask
 
     X_train = X[train_mask]
@@ -89,13 +90,14 @@ def main():
     print("\nParticipantes:")
     print(participants.value_counts())
 
-    participante_teste = "Guilherme0608"
+    # Lista com os participantes escolhidos para o conjunto de teste
+    participantes_teste = ["lis", "andre"]
 
     X_train, X_test, y_train, y_test = dividir_por_participante(
         X,
         y,
         participants,
-        participante_teste
+        participantes_teste
     )
 
     print("\nTreino:")
