@@ -1,6 +1,7 @@
 import cv2
 import joblib
 import mediapipe as mp
+import random
 
 from collections import Counter, deque
 
@@ -15,6 +16,8 @@ MODEL_PATH = "models/modelo_poses.pkl"
 BUFFER_SIZE = 10
 MIN_CONFIDENCE = 0.60
 
+GESTO_BRINCADEIRA = "clones"  # Ex: "absolute_cinema" ou "calabreso"
+NUM_CLONES = 8
 
 # ============================================================
 # MEDIAPIPE
@@ -74,6 +77,9 @@ def main():
         print("Não foi possível abrir a webcam.")
         return
 
+    clones_ativos = False
+    nomes_clones = [f"GestuAI - Clone {i}" for i in range(NUM_CLONES)]
+
     with mp_holistic.Holistic(
         model_complexity=1,
         min_detection_confidence=0.5,
@@ -82,6 +88,8 @@ def main():
             success, frame = cap.read()
             if not success:
                 continue
+
+            classe_estavel = None
 
             # Espelha a imagem
             frame = cv2.flip(frame, 1)
@@ -151,6 +159,33 @@ def main():
             # ------------------------------------------------
             # Exibe webcam
             # ------------------------------------------------
+
+            if classe_estavel == GESTO_BRINCADEIRA:
+                if not clones_ativos:
+                    # Gesto ativado pela primeira vez: Cria e espalha as janelas
+                    for nome in nomes_clones:
+                        cv2.namedWindow(nome, cv2.WINDOW_NORMAL)
+                        # Define um tamanho menor para os clones (ex: 400x300)
+                        cv2.resizeWindow(nome, 400, 300)
+                        
+                        # Sorteia posições assumindo um monitor comum (1920x1080)
+                        # Ajuste os limites se a tela do evento for menor
+                        pos_x = random.randint(0, 1500)
+                        pos_y = random.randint(0, 700)
+                        cv2.moveWindow(nome, pos_x, pos_y)
+                        
+                    clones_ativos = True
+
+                # Atualiza todos os clones com o frame atual para ficarem espelhados e ao vivo
+                for nome in nomes_clones:
+                    cv2.imshow(nome, frame)
+                    
+            else:
+                # Se o gesto parou de ser feito, destrói os clones
+                if clones_ativos:
+                    for nome in nomes_clones:
+                        cv2.destroyWindow(nome)
+                    clones_ativos = False
 
             cv2.imshow("GestuAI - Circuito", frame)
             key = cv2.waitKey(1) & 0xFF
