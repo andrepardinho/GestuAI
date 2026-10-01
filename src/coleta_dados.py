@@ -33,7 +33,7 @@ FIGURINHAS = [
     "absolute_cinema", "beyonce_tirulef", "calabreso", "coelho_relogio", "crianca_chocada", 
     "deboche", "dedo_apontado", "edward_nojo", "emoji_sumindo", "emoji_vaia", 
     "gatinho_hang_loose", "gatinho_legal", "italo_rossi", "macaco_reflexivo", 
-    "nao_grita", "pensativo", "sonic","clones"
+    "nao_grita", "pensativo", "sonic","clones","sixseven"
 ]
 
 # =============================================================================
