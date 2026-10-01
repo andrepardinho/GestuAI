@@ -378,7 +378,8 @@ def main():
     pagina_menu = 0
 
     sorteios_config = {
-        "gatinho_legal": ["gatinho_legal.jpg", "emoji_legal.gif"]
+        "gatinho_legal": ["gatinho_legal.jpg", "emoji_legal.gif"],
+        "sixseven": ["sixseven1.gif", "sixseven2.jpg", "sixseven3.jpg"]
     }
     
     imagem_sorteada = None
