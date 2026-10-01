@@ -91,7 +91,7 @@ def main():
     print(participants.value_counts())
 
     # Lista com os participantes escolhidos para o conjunto de teste
-    participantes_teste = ["lis", "andre"]
+    participantes_teste = ["Guilherme0608"]
 
     X_train, X_test, y_train, y_test = dividir_por_participante(
         X,

@@ -315,6 +315,13 @@ def main():
     mostrar_landmarks = True  # Controle de exibição das linhas/pontos
     nomes_clones = [f"GestuAI - Clone {i}" for i in range(NUM_CLONES)]
 
+    sorteios_config = {
+        "gatinho_legal": ["gatinho_legal.jpg", "emoji_legal.gif"]
+    }
+    
+    imagem_sorteada = None
+    gesto_sorteio_atual = None
+
     with mp_holistic.Holistic(
         model_complexity=1,
         min_detection_confidence=0.5,
@@ -376,9 +383,22 @@ def main():
             # 1. HUD com informações na câmera
             desenhar_hud(frame, classe_estavel, confianca, mostrar_landmarks)
 
-            # 2. Figurinha em assets/ com o mesmo nome da classe
+            if classe_estavel in sorteios_config:
+                # Sorteia apenas se não houver imagem travada ou se mudou de gatilho
+                if imagem_sorteada is None or gesto_sorteio_atual != classe_estavel:
+                    imagem_sorteada = random.choice(sorteios_config[classe_estavel])
+                    gesto_sorteio_atual = classe_estavel
+                
+                nome_para_buscar = imagem_sorteada
+            else:
+                # Reseta o estado do sorteio para gestos normais
+                imagem_sorteada = None
+                gesto_sorteio_atual = None
+                nome_para_buscar = classe_estavel
+
+            # 2. Figurinha em assets/ com o nome sorteado (ou o nome padrão da classe)
             painel_figurinha = obter_painel_figurinha(
-                classe_estavel, frame.shape[0], PAINEL_WIDTH,
+                nome_para_buscar, frame.shape[0], PAINEL_WIDTH,
                 cache_figurinhas, inicio_animacao
             )
 
