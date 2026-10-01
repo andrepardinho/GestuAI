@@ -291,7 +291,7 @@ def main():
     inicio_animacao = time.monotonic()
 
     buffer = deque(maxlen=BUFFER_SIZE)
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
     window_name = "GestuAI - Circuito"
 
