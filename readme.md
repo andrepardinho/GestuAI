@@ -45,16 +45,16 @@ O projeto pode ser utilizado de duas formas principais: executando o modelo já 
 ### 1. Testar o Reconhecimento ao Vivo
 Se você já possui o arquivo `modelo_poses.pkl` na pasta `models`, basta rodar a aplicação principal:  
 ```bash
-python app_circuito.py
+python src/app_circuito.py
 ```
-Faça as poses na frente da câmera. Para encerrar o aplicativo, pressione a tecla `q` na janela do vídeo.
+Faça as poses na frente da câmera. Com o botão `l`, desligue/ligue o landmark e utilize o botão `m` para abrir/fechar o menu de figurinhas. Para encerrar o aplicativo, pressione a tecla `q` na janela do vídeo.
 
 ### 2. Criar e Treinar seu Próprio Modelo
 Caso queira treinar novas figurinhas, o sistema possui um circuito de 3 etapas:
-1. Coleta de Dados: Execute `python coleta_dados.py` para gravar seus movimentos e gerar arquivo de dados brutos.
+1. Coleta de Dados: Execute `python src/coleta_dados.py` para gravar seus movimentos e gerar arquivo de dados brutos.
 Siga os avisos na tela para variar a posição. Pressione `s` para iniciar a contagem regressiva e gravar os frames da pose.   
-2. Processamento e Normalização: Rode `python processar_dados.py` para padronizar o tamanho e posição das poses coletadas (centraliza o nariz e divide pela distância dos ombros).
-3. Treinamento: Execute `python treinamento.py` para ensinar a Inteligência Artificial a reconhecer os dados que você gravou e gerar um novo modelo.
+2. Processamento e Normalização: Rode `python src/processar_dados.py` para padronizar o tamanho e posição das poses coletadas (centraliza o nariz e divide pela distância dos ombros).
+3. Treinamento: Execute `python src/treinamento.py` para ensinar a Inteligência Artificial a reconhecer os dados que você gravou e gerar um novo modelo.
 
 ## 👩‍💻 Desenvolvedores
 
