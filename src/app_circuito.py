@@ -8,6 +8,7 @@ import joblib
 import mediapipe as mp
 import numpy as np
 from PIL import Image, ImageSequence
+import math
 
 # Importando as funções e configurações diretamente do landmarks.py
 from landmarks import (
@@ -261,7 +262,7 @@ def desenhar_hud(frame, classe_estavel, confianca, mostrar_landmarks):
     status_lm = "ON" if mostrar_landmarks else "OFF"
     cv2.putText(
         frame,
-        f"[L] Landmarks: {status_lm}  |  [Q] Sair",
+        f"[L] Landmarks: {status_lm}  |  [M] Menu  |  [Q] Sair",
         (20, h - 15),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.55,
@@ -269,6 +270,65 @@ def desenhar_hud(frame, classe_estavel, confianca, mostrar_landmarks):
         1,
         cv2.LINE_AA,
     )
+
+# ============================================================
+# MENU DE FIGURINHAS
+# ============================================================
+
+def criar_tela_menu(altura, largura, cache, pagina, colunas=4, linhas=2):
+    tela = np.full((altura, largura, 3), (20, 20, 20), dtype=np.uint8)
+
+    arquivos = sorted(cache.keys())
+    por_pagina = colunas * linhas
+    total_paginas = max(1, math.ceil(len(arquivos) / por_pagina))
+    pagina = pagina % total_paginas  # dá a volta nas pontas
+
+    topo = 70
+    rodape = 45
+    area_h = altura - topo - rodape
+    cel_w = largura // colunas
+    cel_h = area_h // linhas
+    margem = 12
+    altura_label = 28
+
+    # Cabeçalho
+    cv2.putText(tela, "MENU DE FIGURINHAS", (25, 45),
+                cv2.FONT_HERSHEY_DUPLEX, 0.9, (0, 255, 150), 2, cv2.LINE_AA)
+    texto_pag = f"Pagina {pagina + 1}/{total_paginas}  ({len(arquivos)} figurinhas)"
+    cv2.putText(tela, texto_pag, (largura - 380, 45),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (220, 220, 220), 1, cv2.LINE_AA)
+    cv2.line(tela, (0, topo - 5), (largura, topo - 5), (0, 230, 150), 2)
+
+    if not arquivos:
+        cv2.putText(tela, "Nenhuma figurinha encontrada em assets/",
+                    (largura // 2 - 250, altura // 2),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (160, 160, 160), 2, cv2.LINE_AA)
+
+    inicio = pagina * por_pagina
+    for i, arquivo in enumerate(arquivos[inicio:inicio + por_pagina]):
+        col = i % colunas
+        lin = i // colunas
+        x0 = col * cel_w + margem
+        y0 = topo + lin * cel_h + margem
+        w = cel_w - 2 * margem
+        h = cel_h - 2 * margem - altura_label
+
+        # Miniatura (primeiro frame; para GIF usa o frame inicial)
+        miniatura = montar_painel_figurinha(cache[arquivo]["frames"][0], h, w)
+        tela[y0:y0 + h, x0:x0 + w] = miniatura
+        cv2.rectangle(tela, (x0, y0), (x0 + w, y0 + h), (70, 70, 70), 1)
+
+        # Nome do arquivo
+        nome = arquivo if len(arquivo) <= 28 else arquivo[:25] + "..."
+        cv2.putText(tela, nome, (x0, y0 + h + 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+
+    # Rodapé
+    cv2.putText(tela, "[A] Anterior  |  [D] Proxima  |  [M] Fechar",
+                (25, altura - 15), cv2.FONT_HERSHEY_SIMPLEX,
+                0.55, (255, 255, 255), 1, cv2.LINE_AA)
+
+    return tela, pagina
 
 
 # ============================================================
@@ -314,6 +374,8 @@ def main():
     clones_ativos = False
     mostrar_landmarks = True  # Controle de exibição das linhas/pontos
     nomes_clones = [f"GestuAI - Clone {i}" for i in range(NUM_CLONES)]
+    menu_aberto = False
+    pagina_menu = 0
 
     sorteios_config = {
         "gatinho_legal": ["gatinho_legal.jpg", "emoji_legal.gif"]
@@ -404,6 +466,11 @@ def main():
 
             # 3. Junta câmera + figurinha lado a lado
             tela_composta = cv2.hconcat([frame, painel_figurinha])
+            if menu_aberto:
+                tela_composta, pagina_menu = criar_tela_menu(
+                    tela_composta.shape[0], tela_composta.shape[1],
+                    cache_figurinhas, pagina_menu
+                )
 
             # Brincadeira dos clones
             if classe_estavel == GESTO_BRINCADEIRA:
@@ -429,8 +496,17 @@ def main():
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q"):
                 break
-            elif key == ord("l") or key == ord("L"):
-                mostrar_landmarks = not mostrar_landmarks  # Alterna visibilidade
+            elif key in (ord("l"), ord("L")):
+                mostrar_landmarks = not mostrar_landmarks
+            elif key in (ord("m"), ord("M")):
+                menu_aberto = not menu_aberto
+                pagina_menu = 0
+            elif key == 27 and menu_aberto:  # ESC fecha o menu
+                menu_aberto = False
+            elif menu_aberto and key in (ord("d"), ord("D"), ord(".")):
+                pagina_menu += 1
+            elif menu_aberto and key in (ord("a"), ord("A"), ord(",")):
+                pagina_menu -= 1
 
     cap.release()
     cv2.destroyAllWindows()
