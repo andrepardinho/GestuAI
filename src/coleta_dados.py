@@ -25,62 +25,31 @@ import csv
 import random
 import time
 import cv2
+import winsound
 import mediapipe as mp
+
+FIGURINHAS = [
+    "neutro",
+    "absolute_cinema", "beyonce_tirulef", "calabreso", "coelho_relogio", "crianca_chocada", 
+    "deboche", "dedo_apontado", "edward_nojo", "emoji_sumindo", "emoji_vaia", 
+    "gatinho_hang_loose", "gatinho_legal", "italo_rossi", "macaco_reflexivo", 
+    "nao_grita", "pensativo", "sonic","clones"
+]
 
 # =============================================================================
 # 1. CONFIGURAÇÃO DE LANDMARKS (ponto único de escalabilidade)
 # =============================================================================
 mp_holistic = mp.solutions.holistic
-Pose = mp_holistic.PoseLandmark
-
-LANDMARK_CONFIG = {
-    "pose": {
-        "indices": [
-            Pose.LEFT_SHOULDER.value,
-            Pose.RIGHT_SHOULDER.value,
-            Pose.LEFT_ELBOW.value,
-            Pose.RIGHT_ELBOW.value,
-            Pose.LEFT_WRIST.value,
-            Pose.RIGHT_WRIST.value,
-        ],
-        "include_visibility": True
-    },
-
-    "left_hand": {
-        "indices": list(range(21)),
-        "include_visibility": False
-    },
-
-    "right_hand": {
-        "indices": list(range(21)),
-        "include_visibility": False
-    },
-
-    "face": {
-        "indices": [
-            1,          # nariz / referência
-            61, 291,    # cantos da boca
-            0, 17,      # lábios externos
-            13, 14,     # lábios internos
-            159, 145,   # olho
-            386, 374    # outro olho
-        ],
-        "include_visibility": False
-    },
-}
-
-RESULT_ATTR = {
-    "pose": "pose_landmarks",
-    "face": "face_landmarks",
-    "left_hand": "left_hand_landmarks",
-    "right_hand": "right_hand_landmarks",
-}
+from landmarks import (
+    LANDMARK_CONFIG, RESULT_ATTR, build_feature_column_names,
+    build_column_names, extract_group, extract_landmarks,
+)
 
 DATASET_PATH = "data/dataset_raw.csv"
 
 # --- Etapa 3: controle de volume de captura -------------------------------
 #Quantos frames grava por clique do botão "s"
-FRAMES_ALVO_POR_POSE = 200
+FRAMES_ALVO_POR_POSE = 125
 # Quantos frames gravar por segundo no CSV (ex: 10 FPS)
 FPS_GRAVACAO = 10 
 INTERVALO_GRAVACAO = 1.0 / FPS_GRAVACAO
@@ -103,32 +72,6 @@ LABEL_NEUTRO = "neutro"
 # =============================================================================
 # 2. GERAÇÃO DE NOMES DE COLUNAS (derivada automaticamente da config acima)
 # =============================================================================
-def build_column_names(config: dict) -> list:
-    columns = []
-    for group_name, group_cfg in config.items():
-        for idx in group_cfg["indices"]:
-            columns.extend([
-                f"{group_name}_{idx}_x",
-                f"{group_name}_{idx}_y",
-                f"{group_name}_{idx}_z",
-            ])
-            if group_cfg["include_visibility"]:
-                columns.append(f"{group_name}_{idx}_v")
-    columns.append("participant_id")
-    columns.append("label")
-    return columns
-
-
-def build_feature_column_names(config: dict) -> list:
-    """
-    Igual a build_column_names, mas SEM participant_id/label — é essa lista
-    que a normalização usa, porque ela precisa saber, posição a posição em
-    'row', quais entradas são x/y/z/v (participant_id e label não entram
-    nessa matemática).
-    """
-    return build_column_names(config)[:-2]
-
-
 # Não é mais usada para normalizar aqui (isso agora é em processar_dados.py),
 # mas fica disponível caso você queira validar/gerar essa lista em algum
 # teste ou script auxiliar.
@@ -138,32 +81,6 @@ FEATURE_COLUMNS = build_feature_column_names(LANDMARK_CONFIG)
 # =============================================================================
 # 3. EXTRAÇÃO DE LANDMARKS (trata ausência de detecção preenchendo com zeros)
 # =============================================================================
-def extract_group(landmark_list, group_cfg: dict) -> list:
-    values = []
-    n_coords = 4 if group_cfg["include_visibility"] else 3
-
-    for idx in group_cfg["indices"]:
-        if landmark_list is not None:
-            lm = landmark_list.landmark[idx]
-            point = [lm.x, lm.y, lm.z]
-            if group_cfg["include_visibility"]:
-                point.append(lm.visibility)
-            values.extend(point)
-        else:
-            values.extend([0.0] * n_coords)
-
-    return values
-
-
-def extract_landmarks(results, config: dict) -> list:
-    row = []
-    for group_name, group_cfg in config.items():
-        attr_name = RESULT_ATTR[group_name]
-        landmark_list = getattr(results, attr_name)
-        row.extend(extract_group(landmark_list, group_cfg))
-    return row
-
-
 # =============================================================================
 # 4. GRAVAÇÃO NO CSV (modo append, cria header se o arquivo não existir)
 # =============================================================================
@@ -184,17 +101,17 @@ def save_row(row: list, participant_id: str, label: str, path: str = DATASET_PAT
 # 5. LOOP PRINCIPAL DE CAPTURA
 # =============================================================================
 def main():
-    pose_label = input(
-        f"Nome da pose a ser gravada (ex: macaco_zen, ou '{LABEL_NEUTRO}'): "
-    ).strip()
     participant_id = input("ID/nome do participante (ex: Lules01): ").strip()
+
+    figurinha_index = 0
+    pose_label = FIGURINHAS[figurinha_index]
 
     is_neutro = pose_label.lower() == LABEL_NEUTRO
 
     cap = cv2.VideoCapture(0)
 
     with mp_holistic.Holistic(
-        model_complexity=2,
+        model_complexity=1,
         min_detection_confidence=0.7,
         min_tracking_confidence=0.7,
     ) as holistic:
@@ -218,8 +135,15 @@ def main():
 
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             results = holistic.process(frame_rgb)
-            if not results.pose_landmarks or not results.face_landmarks:
-                continue
+            referencias_validas = (
+                results.pose_landmarks is not None
+                and results.face_landmarks is not None
+            )
+
+            # --- Alerta Sonoro de Erro/Perda de Rastreamento ---
+            # Se estiver gravando mas o rosto ou pose sumirem, emite um bip curto e grave (440Hz)
+            if recording and not referencias_validas:
+                winsound.Beep(440, 100)
 
             mp.solutions.drawing_utils.draw_landmarks(
                 frame, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS
@@ -253,7 +177,7 @@ def main():
                     cv2.putText(frame, f"PREPARAR: {segundos_inteiros}", 
                                 (frame.shape[1]//2 - 150, frame.shape[0]//2),
                                 cv2.FONT_HERSHEY_DUPLEX, 1.5, (0, 165, 255), 4)
-            if recording:
+            if recording and referencias_validas:
                 tempo_atual = time.time()
                 if tempo_atual - ultimo_tempo_gravado >= INTERVALO_GRAVACAO:
                     row = extract_landmarks(results, LANDMARK_CONFIG)
@@ -264,6 +188,8 @@ def main():
 
                     if frame_count >= FRAMES_ALVO_POR_POSE:
                         recording = False
+                        # Emite um bip longo e agudo (1500Hz) indicando SUCESSO e fim da captura
+                        winsound.Beep(1500, 600)
                         print(
                             f"[OK] {frame_count} frames gravados para '{pose_label}'. "
                             f"Gravação parada automaticamente. Pressione 's' para "
@@ -279,10 +205,15 @@ def main():
             # --- Textos na tela ----------------------------------------------
             status_texto = "GRAVANDO" if recording else "PARADO"
             status_cor = (0, 0, 255) if recording else (200, 200, 200)
-            cv2.putText(frame, f"[{status_texto}] pose: {pose_label}", (10, 25),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_cor, 2)
+
+            cv2.putText(frame, f"[{status_texto}] Figurinha: {pose_label}",
+                        (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_cor, 2)
+
+            cv2.putText(frame, f"{figurinha_index + 1}/{len(FIGURINHAS)}",
+                        (10, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 2)
+
             cv2.putText(frame, f"frames: {frame_count}/{FRAMES_ALVO_POR_POSE}",
-                        (10, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (200, 200, 200), 2)
+                        (10, 85), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (200, 200, 200), 2)
 
             if recording:
                 # Etapa 5: lembrete visual de que é a classe neutro,
@@ -290,20 +221,30 @@ def main():
                 if is_neutro:
                     cv2.putText(frame, "Classe NEUTRO: fique parado ou se "
                                         "mova aleatoriamente, sem pose fixa",
-                                (10, 85), cv2.FONT_HERSHEY_SIMPLEX, 0.6,
+                                (10, 115), cv2.FONT_HERSHEY_SIMPLEX, 0.6,
                                 (0, 165, 255), 2)
                 else:
-                    cv2.putText(frame, aviso_atual, (10, 85),
+                    cv2.putText(frame, aviso_atual, (10, 115),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 165, 255), 2)
 
-            cv2.putText(frame, "[s] iniciar/pausar  [q] sair", (10, frame.shape[0] - 15),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (150, 150, 150), 1)
+            cv2.putText(frame, "[n] proxima  [p] anterior  [s] iniciar/pausar  [q] sair",
+                        (10, frame.shape[0] - 50), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.55, (150, 200, 200), 1)
 
             cv2.imshow("Coleta de Dados", frame)
 
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q"):
                 break
+            elif key in (ord("n"), ord("p")):
+                if not recording and not is_counting_down:
+                    if key == ord("n"):
+                        figurinha_index = (figurinha_index + 1) % len(FIGURINHAS)
+                    else:
+                        figurinha_index = (figurinha_index - 1) % len(FIGURINHAS)
+                    pose_label = FIGURINHAS[figurinha_index]
+                    is_neutro = pose_label.lower() == LABEL_NEUTRO
+                    frame_count = 0
             elif key == ord("s"):
                 if recording:
                     # Se está a gravar, pausa imediatamente
