@@ -37,7 +37,7 @@ MIN_CONFIDENCE = 0.60
 FRAMES_PARA_LIMPAR_BUFFER = 8
 
 # Largura do painel lateral da figurinha
-PAINEL_WIDTH = 480
+PAINEL_WIDTH = 360
 
 GESTO_BRINCADEIRA = "clones"
 NUM_CLONES = 8
@@ -291,7 +291,7 @@ def main():
     inicio_animacao = time.monotonic()
 
     buffer = deque(maxlen=BUFFER_SIZE)
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
     window_name = "GestuAI - Circuito"
 
